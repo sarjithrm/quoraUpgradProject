@@ -91,4 +91,24 @@ public class UserService {
             throw new AuthenticationFailedException("ATH-002", "Password failed");
         }
     }
+
+    /*
+     * logout - signout the user
+     * @param accessToken
+     * @throws SignOutRestrictedException - User doesn't have authentication token
+     * @return UserAuthEntity
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserAuthEntity logout(final String accessToken) throws SignOutRestrictedException {
+        UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
+        if(userAuthEntity == null){
+            throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
+        }
+
+        final ZonedDateTime now = ZonedDateTime.now();
+        userAuthEntity.setLogoutAt(now);
+        userDao.updateUserAuth(userAuthEntity);
+
+        return userAuthEntity;
+    }
 }

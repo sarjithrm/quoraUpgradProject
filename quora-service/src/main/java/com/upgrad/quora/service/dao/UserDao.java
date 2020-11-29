@@ -68,4 +68,28 @@ public class UserDao {
         entityManager.persist(userAuthEntity);
         return userAuthEntity;
     }
+
+    /*
+     * updateUserAuth - update user authentication token record
+     * @param UserAuthEntity
+     */
+    public void updateUserAuth(final UserAuthEntity userAuthEntity){
+        entityManager.merge(userAuthEntity);
+    }
+
+    /*
+     * getUserAuthToken - Get a user_auth with provided accessToken
+     * @param accessToken
+     * @return UserAuthEntity - query is successful
+     * @return null - no records are available
+     */
+    public UserAuthEntity getUserAuthToken(final String accessToken){
+        try{
+            return entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthEntity.class)
+                    .setParameter("accessToken", accessToken)
+                    .getSingleResult();
+        }catch(NoResultException nre){
+            return null;
+        }
+    }
 }
