@@ -92,4 +92,20 @@ public class UserDao {
             return null;
         }
     }
+
+    /*
+     * getUserDetails - Get the user
+     * @param uuid
+     * @return UserEntity - query is successful
+     * @return null - no records are available
+     */
+    public UserEntity getUserDetails(final String uuid){
+        try{
+            return entityManager.createNamedQuery("userByUuid", UserEntity.class)
+                    .setParameter("uuid", uuid)
+                    .getSingleResult();
+        }catch(NoResultException nre){
+            return null;
+        }
+    }
 }
