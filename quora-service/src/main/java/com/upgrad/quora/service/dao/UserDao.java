@@ -108,4 +108,14 @@ public class UserDao {
             return null;
         }
     }
+
+    /*
+     * deleteUser - Delete the user
+     * @param uuid
+     * @return UserEntity - query is successful
+     */
+    public UserEntity deleteUser(final UserEntity userEntity){
+        entityManager.remove(userEntity);
+        return userEntity;
+    }
 }
