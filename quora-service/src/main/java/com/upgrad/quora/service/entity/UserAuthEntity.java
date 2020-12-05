@@ -111,6 +111,7 @@ public class UserAuthEntity implements Serializable {
     public void setLogoutAt(ZonedDateTime logoutAt) {
         this.logoutAt = logoutAt;
     }
+
     @Override
     public boolean equals(Object obj) {
         return new EqualsBuilder().append(this, obj).isEquals();

@@ -29,10 +29,11 @@ public class AdminService {
     @Transactional(propagation = Propagation.REQUIRED)
     public UserEntity deleteUser(final String uuid, final String accessToken) throws AuthorizationFailedException, UserNotFoundException {
         try{
-            UserEntity userEntity = commonService.getUserDetails(uuid, accessToken);
-            if(userDao.getUserAuthToken(accessToken).getUser().getRole().equals("nonadmin")){
+            UserAuthEntity userAuthEntity = commonService.accessTokenAuthentication(accessToken);
+            if(userAuthEntity.getUser().getRole().equals("nonadmin")){
                 throw new AuthorizationFailedException("ATHR-003","Unauthorized Access, Entered user is not an admin");
             }
+            UserEntity userEntity = commonService.getUserDetails(uuid);
             return userDao.deleteUser(userEntity);
         }catch(AuthorizationFailedException exp){
             if(exp.getCode().equals("ATHR-002")){

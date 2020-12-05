@@ -15,12 +15,12 @@ public class CommonService {
     private UserDao userDao;
 
     /*
-     * getUserDetails - get user details
-     * @param userId, accessToken
-     * @throws AuthorizationFailedException - user hasn't signed in and UserNotFoundException - user not exists
-     * @return UserEntity
+     * accessTokenAuthentication - authenticate user using access Token
+     * @param accessToken
+     * @throws AuthorizationFailedException - user hasn't signed in
+     * @return UserAuthEntity
      */
-    public UserEntity getUserDetails(final String userId, final String accessToken) throws AuthorizationFailedException, UserNotFoundException {
+    public UserAuthEntity accessTokenAuthentication(final String accessToken) throws AuthorizationFailedException{
         UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
         if(userAuthEntity == null){
             throw new AuthorizationFailedException("ATHR-001","User has not signed in");
@@ -28,11 +28,21 @@ public class CommonService {
         if(userAuthEntity.getLogoutAt() != null){
             throw new AuthorizationFailedException("ATHR-002","User is signed out.Sign in first to get user details");
         }
+        return userAuthEntity;
+    }
 
+    /*
+     * getUserDetails - get user details
+     * @param userId
+     * @throws AuthorizationFailedException - user hasn't signed in and UserNotFoundException - user not exists
+     * @return UserEntity
+     */
+    public UserEntity getUserDetails(final String userId) throws UserNotFoundException {
         UserEntity userEntity = userDao.getUserDetails(userId);
         if(userEntity == null){
             throw new UserNotFoundException("USR-001","User with entered uuid does not exist");
         }
         return userEntity;
     }
+
 }
