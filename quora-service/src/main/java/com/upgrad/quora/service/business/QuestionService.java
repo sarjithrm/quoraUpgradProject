@@ -6,6 +6,7 @@ import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
+import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class QuestionService {
      * createQuestion - create question
      * @param QuestionEntity, accessToken
      * @throws AuthorizationFailedException - user hasn't signed in or user signed out
-     * @return UserEntity
+     * @return QuestionEntity
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity createQuestion(final QuestionEntity questionEntity, final String accessToken) throws AuthorizationFailedException{
@@ -88,6 +89,38 @@ public class QuestionService {
             throw e;
         }catch(UserNotFoundException exp){
             throw new UserNotFoundException("USR-001","User with entered uuid whose question details are to be seen does not exist");
+        }
+    }
+
+    /*
+     * editQuestion
+     * @param questionID, accessToken, content
+     * @throws AuthorizationFailedException - user hasn't signed in or user signed out, InvalidQuestionException
+     * @return QuestionEntity
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity editQuestion(final String questionId, final String accessToken, final String content) throws AuthorizationFailedException, InvalidQuestionException{
+        try{
+            UserAuthEntity userAuthEntity = commonService.accessTokenAuthentication(accessToken);
+            UserEntity user = userAuthEntity.getUser();
+
+            final QuestionEntity question   =   questionDao.getQuestion(questionId);
+
+            if(question == null){
+                throw new InvalidQuestionException("QUES-001","Entered question uuid does not exist");
+            }
+
+            if(question.getUser().getId() != user.getId()){
+                throw new AuthorizationFailedException("ATHR-003","Only the question owner can edit the question");
+            }
+
+            question.setContent(content);
+            return questionDao.updateQuestion(question);
+        } catch (AuthorizationFailedException e) {
+            if(e.getCode().equals("ATHR002")){
+                throw new AuthorizationFailedException("ATHR-002","User is signed out.Sign in first to edit the question");
+            }
+            throw e;
         }
     }
 }
