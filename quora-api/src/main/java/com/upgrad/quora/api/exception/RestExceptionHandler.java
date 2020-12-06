@@ -76,4 +76,15 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> invalidQuestionException(InvalidQuestionException exp, WebRequest request){
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exp.getCode()).message(exp.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
     }
+
+    /*
+     *Exception handler for AnswerNotFoundException
+     *HttpStatus: UNPROCESSED_ENTITY
+     *@Param AnswerNotFoundException, WebRequest
+     *@return ResponseEntity<ErrorResponse> with error code and message
+     */
+    @ExceptionHandler(AnswerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> answerNotFoundException(AnswerNotFoundException exp, WebRequest request){
+        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exp.getCode()).message(exp.getErrorMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
 }

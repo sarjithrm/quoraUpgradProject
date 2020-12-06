@@ -13,6 +13,9 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "answer")
+@NamedQueries({
+        @NamedQuery(name = "getAnswerById", query = "Select a from AnswerEntity a where a.uuid =:uuid")
+})
 public class AnswerEntity implements Serializable {
 
     @Id
