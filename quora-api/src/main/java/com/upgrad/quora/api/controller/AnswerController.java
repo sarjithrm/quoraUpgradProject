@@ -3,6 +3,7 @@ package com.upgrad.quora.api.controller;
 import com.upgrad.quora.api.model.*;
 import com.upgrad.quora.service.business.AnswerService;
 import com.upgrad.quora.service.entity.AnswerEntity;
+import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.UUID;
 
 @RestController
@@ -79,5 +82,31 @@ public class AnswerController {
                 .id(answer.getUuid()).status("ANSWER DELETED");
 
         return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse, HttpStatus.OK);
+    }
+
+    /*
+     * getAnswers
+     * path answer/all/{questionId}
+     * @param accessToken, questionId
+     * @return AnswerDetailsResponse
+     * @throws AuthorizationFailedException, InvalidQuestionException
+     */
+    @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<ArrayList<AnswerDetailsResponse>> getAnswers(@RequestHeader("authorization") final String authorization, @PathVariable(name = "questionId") final String questionId) throws AuthorizationFailedException, InvalidQuestionException {
+        String accessToken = authorization.split("Bearer ")[1];
+
+        ArrayList<AnswerEntity> answers = answerService.getAnswers(accessToken, questionId);
+
+        ListIterator<AnswerEntity> listIterator = answers.listIterator();
+        ArrayList<AnswerDetailsResponse> response = new ArrayList<>();
+        while(listIterator.hasNext()){
+            AnswerEntity answer = listIterator.next();
+            AnswerDetailsResponse answerDetailsResponse = new AnswerDetailsResponse().id(answer.getUuid())
+                    .questionContent(answer.getQuestion().getContent())
+                    .answerContent(answer.getAns());
+            response.add(answerDetailsResponse);
+        }
+
+        return new ResponseEntity<ArrayList<AnswerDetailsResponse>>(response, HttpStatus.OK);
     }
 }

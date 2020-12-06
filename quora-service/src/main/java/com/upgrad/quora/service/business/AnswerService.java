@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 
 @Service
 public class AnswerService {
@@ -98,7 +99,7 @@ public class AnswerService {
      * @return AnswerEntity
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public AnswerEntity deleteAnswer(final String answerId, final String accessToken) throws AuthorizationFailedException, AnswerNotFoundException{
+    public AnswerEntity deleteAnswer(final String accessToken, final String answerId) throws AuthorizationFailedException, AnswerNotFoundException{
         try{
             UserAuthEntity userAuthEntity = commonService.accessTokenAuthentication(accessToken);
             UserEntity user = userAuthEntity.getUser();
@@ -116,6 +117,31 @@ public class AnswerService {
         } catch (AuthorizationFailedException e) {
             if(e.getCode().equals("ATHR002")){
                 throw new AuthorizationFailedException("ATHR-002","User is signed out.Sign in first to delete an answer");
+            }
+            throw e;
+        }
+    }
+
+    /*
+     * getAnswers
+     * @param questionID, accessToken
+     * @throws AuthorizationFailedException, InvalidQuestionException
+     * @return AnswerEntity
+     */
+    public ArrayList<AnswerEntity> getAnswers(final String accessToken, final String questionId) throws AuthorizationFailedException, InvalidQuestionException{
+        try{
+            UserAuthEntity userAuthEntity = commonService.accessTokenAuthentication(accessToken);
+
+            QuestionEntity question = questionDao.getQuestion(questionId);
+            if(question == null){
+                throw new InvalidQuestionException("QUES-001","The question with entered uuid whose details are to be seen does not exist");
+            }
+
+            ArrayList<AnswerEntity> answers = answerDao.getAnswers(question);
+            return answers;
+        } catch (AuthorizationFailedException e) {
+            if(e.getCode().equals("ATHR002")){
+                throw new AuthorizationFailedException("ATHR-002","User is signed out.Sign in first to get the answers");
             }
             throw e;
         }
