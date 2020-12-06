@@ -123,4 +123,34 @@ public class QuestionService {
             throw e;
         }
     }
+
+    /*
+     * deleteQuestion
+     * @param questionID, accessToken
+     * @throws AuthorizationFailedException - user hasn't signed in or user signed out, InvalidQuestionException
+     * @return QuestionEntity
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity deleteQuestion(final String questionId, final String accessToken) throws AuthorizationFailedException, InvalidQuestionException{
+        try{
+            UserAuthEntity userAuthEntity = commonService.accessTokenAuthentication(accessToken);
+            UserEntity user = userAuthEntity.getUser();
+
+            QuestionEntity question   =   questionDao.getQuestion(questionId);
+            if(question == null){
+                throw new InvalidQuestionException("QUES-001","Entered question uuid does not exist");
+            }
+
+            if(question.getUser().getId() != user.getId() || user.getRole() == "nonadmin"){
+                throw new AuthorizationFailedException("ATHR-003","Only the question owner or admin can delete the question");
+            }
+
+            return questionDao.deleteQuestion(question);
+        } catch (AuthorizationFailedException e) {
+            if(e.getCode().equals("ATHR002")){
+                throw new AuthorizationFailedException("ATHR-002","User is signed out.Sign in first to delete a question");
+            }
+            throw e;
+        }
+    }
 }

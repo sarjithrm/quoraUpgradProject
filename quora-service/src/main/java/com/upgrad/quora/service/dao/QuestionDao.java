@@ -71,4 +71,14 @@ public class QuestionDao {
         entityManager.merge(questionEntity);
         return questionEntity;
     }
+
+    /*
+     * deleteQuestion
+     * @param questionEntity
+     * @return questionEntity
+     */
+    public QuestionEntity deleteQuestion(QuestionEntity questionEntity){
+        entityManager.remove(questionEntity);
+        return questionEntity;
+    }
 }
